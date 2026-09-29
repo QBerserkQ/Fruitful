@@ -1,0 +1,7 @@
+spring.application.name=Fruitful
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/fruitful-postgres
+spring.datasource.username=postgres
+spring.datasource.password=pass
+
+spring.jpa.hibernate.ddl-auto=validate
