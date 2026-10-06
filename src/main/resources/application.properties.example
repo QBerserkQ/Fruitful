@@ -5,3 +5,7 @@ spring.datasource.username=postgres
 spring.datasource.password=pass
 
 spring.jpa.hibernate.ddl-auto=validate
+
+fruitful.security.jwt.secret-key={secret-key}
+fruitful.security.jwt.access-token-expiration-ms={exp-ms}
+fruitful.security.jwt.refreh-token-expiration-ms={exp-ms}
