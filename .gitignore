@@ -37,7 +37,7 @@ out/
 .vscode/
 
 ### PROJECT ###
-src/main/resources/application.properties
+/config/
 
 frontend/.env.development
 
