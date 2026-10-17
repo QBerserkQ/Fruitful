@@ -40,3 +40,5 @@ out/
 src/main/resources/application.properties
 
 frontend/.env.development
+
+.env
