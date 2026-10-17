@@ -1,7 +1,12 @@
-import { AuthCard } from '../components/AuthCard';
+import { AuthLayout } from '../components/auth/AuthLayout';
+import { RegisterForm } from '../components/auth/RegisterForm';
 
-export const RegisterPage = () => {
-    return (
-        <AuthCard mode={"register"}/>
-    );
-};
+export const RegisterPage = () => (
+    <AuthLayout
+        mode="register"
+        title="Создать аккаунт"
+        subtitle="Заполните поля для регистрации аккаунта"
+    >
+        <RegisterForm />
+    </AuthLayout>
+);

@@ -1,7 +1,12 @@
-import { AuthCard } from '../components/AuthCard';
+import { AuthLayout } from '../components/auth/AuthLayout';
+import { LoginForm } from '../components/auth/LoginForm';
 
-export const LoginPage = () => {
-    return (
-        <AuthCard mode={"login"}/>
-    );
-};
+export const LoginPage = () => (
+    <AuthLayout
+        mode="login"
+        title="Добро пожаловать"
+        subtitle="Введите свои данные для входа в систему"
+    >
+        <LoginForm />
+    </AuthLayout>
+);

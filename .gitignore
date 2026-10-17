@@ -38,3 +38,5 @@ out/
 
 ### PROJECT ###
 src/main/resources/application.properties
+
+frontend/.env.development

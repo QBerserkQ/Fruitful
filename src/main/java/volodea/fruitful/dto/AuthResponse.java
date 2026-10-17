@@ -1,7 +1,7 @@
 package volodea.fruitful.dto;
 
 public record AuthResponse(
-        String accesToken
+        String accessToken
         , String refreshToken
 ) {
 }
