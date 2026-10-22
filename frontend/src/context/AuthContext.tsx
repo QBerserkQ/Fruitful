@@ -15,7 +15,10 @@ interface AuthContextValue {
 
 const userFromToken = (token: string): User | null => {
     const payload = decodeJwt(token);
-    return payload ? {email: payload.sub} : null;
+    return payload ? {
+        email: payload.sub, username: payload.sub.split("@")[0],
+    }
+        : null;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);

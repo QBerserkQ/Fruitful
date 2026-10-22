@@ -4,8 +4,8 @@ import { RegisterForm } from '../components/auth/RegisterForm';
 export const RegisterPage = () => (
     <AuthLayout
         mode="register"
-        title="Создать аккаунт"
-        subtitle="Заполните поля для регистрации аккаунта"
+        title="Sign up"
+        subtitle="Hello, banana!"
     >
         <RegisterForm />
     </AuthLayout>

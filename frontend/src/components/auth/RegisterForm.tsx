@@ -33,16 +33,16 @@ export const RegisterForm = () => {
     const validate = (): RegisterErrors => {
         const found: RegisterErrors = {};
         if (!formData.username.trim()) {
-            found.username = 'Введите имя пользователя';
+            found.username = 'Username is required';
         }
         if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-            found.email = 'Введите корректный email';
+            found.email = 'Please enter a valid email address';
         }
         if (formData.password.length < 6) {
-            found.password = 'Пароль должен быть не короче 6 символов';
+            found.password = 'Password must be at least 6 characters';
         }
         if (formData.confirmPassword !== formData.password) {
-            found.confirmPassword = 'Пароли не совпадают';
+            found.confirmPassword = 'Passwords do not match';
         }
         return found;
     };
@@ -60,9 +60,9 @@ export const RegisterForm = () => {
             // confirmPassword нужен только для проверки, на бэк его отправлять не надо
             const { username, email, password } = formData;
             await register({ username, email, password });
-            navigate('/');
+            navigate('/dashboard', {replace: true});
         } catch (err) {
-            setServerError(err instanceof ApiError ? err.message : 'Что-то пошло не так, попробуйте позже');
+            setServerError(err instanceof ApiError ? err.message : 'Something went wrong, repeat later');
         } finally {
             setIsSubmitting(false);
         }
@@ -71,7 +71,7 @@ export const RegisterForm = () => {
     return (
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <FormField
-                label="Имя пользователя"
+                label="Username"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
@@ -88,7 +88,7 @@ export const RegisterForm = () => {
             />
 
             <FormField
-                label="Пароль"
+                label="Password"
                 name="password"
                 type="password"
                 value={formData.password}
@@ -97,7 +97,7 @@ export const RegisterForm = () => {
             />
 
             <FormField
-                label="Повторите пароль"
+                label="Repeat password"
                 name="confirmPassword"
                 type="password"
                 value={formData.confirmPassword}
@@ -116,7 +116,7 @@ export const RegisterForm = () => {
                 disabled={isSubmitting}
                 className="w-full rounded-lg bg-slate-900 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-                {isSubmitting ? 'Подождите…' : 'Зарегистрироваться'}
+                {isSubmitting ? 'Wait…' : 'Sign up'}
             </button>
         </form>
     );
