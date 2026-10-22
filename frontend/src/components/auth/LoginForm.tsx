@@ -30,10 +30,10 @@ export const LoginForm = () => {
     const validate = (): LoginErrors => {
         const found: LoginErrors = {};
         if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-            found.email = 'Введите корректный email';
+            found.email = 'Please enter a valid email address';
         }
-        if (formData.password.length < 8) {
-            found.password = 'Пароль должен быть не короче 8 символов';
+        if (formData.password.length < 6) {
+            found.password = 'Password must be at least 6 characters';
         }
         return found;
     };
@@ -49,9 +49,9 @@ export const LoginForm = () => {
         setIsSubmitting(true);
         try {
             await login(formData);
-            navigate('/');
+            navigate('/dashboard', {replace: true});
         } catch (err) {
-            setServerError(err instanceof ApiError ? err.message : 'Что-то пошло не так, попробуйте позже');
+            setServerError(err instanceof ApiError ? err.message : 'Something went wrong, repeat later');
         } finally {
             setIsSubmitting(false);
         }
@@ -69,7 +69,7 @@ export const LoginForm = () => {
             />
 
             <FormField
-                label="Пароль"
+                label="Password"
                 name="password"
                 type="password"
                 value={formData.password}
@@ -88,7 +88,7 @@ export const LoginForm = () => {
                 disabled={isSubmitting}
                 className="w-full rounded-lg bg-slate-900 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-                {isSubmitting ? 'Подождите…' : 'Войти'}
+                {isSubmitting ? 'Wait…' : 'Sign in'}
             </button>
         </form>
     );

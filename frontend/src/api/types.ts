@@ -20,4 +20,11 @@ export interface RegisterRequest {
 
 export interface User {
     email: string;
+    username: string;
+}
+
+export interface RecommendedUser {
+    id: number;
+    username: string;
+    tagline: string;
 }
