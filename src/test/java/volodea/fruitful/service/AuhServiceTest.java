@@ -18,7 +18,7 @@ import volodea.fruitful.entity.Role;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.InvalidCredentialsException;
 import volodea.fruitful.exception.RefreshTokenExpiredException;
-import volodea.fruitful.exception.RefreshTokenNotFoundException;
+import volodea.fruitful.exception.InvalidRefreshTokenException;
 import volodea.fruitful.exception.UserAlreadyExistException;
 import volodea.fruitful.repository.UserRepository;
 
@@ -194,10 +194,10 @@ class AuthServiceTest {
     @DisplayName("refresh: неизвестный токен -> RefreshTokenNotFoundException, новые токены не выдаются")
     void refresh_unknownToken_throws() {
         when(refreshTokenService.verifyRefreshToken("unknown"))
-                .thenThrow(new RefreshTokenNotFoundException("unknown"));
+                .thenThrow(new InvalidRefreshTokenException("unknown"));
 
         assertThatThrownBy(() -> authService.refresh(new RefreshTokenRequest("unknown")))
-                .isInstanceOf(RefreshTokenNotFoundException.class);
+                .isInstanceOf(InvalidRefreshTokenException.class);
 
         verifyNoInteractions(jwtService);
         verify(refreshTokenService, never()).generateRefreshToken(any());

@@ -12,7 +12,7 @@ import volodea.fruitful.entity.RefreshToken;
 import volodea.fruitful.entity.Role;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.RefreshTokenExpiredException;
-import volodea.fruitful.exception.RefreshTokenNotFoundException;
+import volodea.fruitful.exception.InvalidRefreshTokenException;
 import volodea.fruitful.repository.RefreshTokenRepository;
 
 import java.time.Instant;
@@ -133,7 +133,7 @@ class RefreshTokenServiceTest {
         when(refreshTokenRepository.findByToken("unknown")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> refreshTokenService.verifyRefreshToken("unknown"))
-                .isInstanceOf(RefreshTokenNotFoundException.class);
+                .isInstanceOf(InvalidRefreshTokenException.class);
 
         verify(refreshTokenRepository, never()).delete(any());
     }
