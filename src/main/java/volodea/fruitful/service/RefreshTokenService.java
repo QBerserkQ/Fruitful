@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import volodea.fruitful.entity.RefreshToken;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.RefreshTokenExpiredException;
-import volodea.fruitful.exception.RefreshTokenNotFoundException;
+import volodea.fruitful.exception.InvalidRefreshTokenException;
 import volodea.fruitful.repository.RefreshTokenRepository;
 
 import java.time.*;
@@ -35,7 +35,7 @@ public class RefreshTokenService {
     @Transactional(noRollbackFor = RefreshTokenExpiredException.class)
     public RefreshToken verifyRefreshToken(String token) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new RefreshTokenNotFoundException(token));
+                .orElseThrow(() -> new InvalidRefreshTokenException(token));
 
         if(refreshToken.getExpiryDate().isBefore(OffsetDateTime.now())) {
             refreshTokenRepository.delete(refreshToken);
