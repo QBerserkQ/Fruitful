@@ -154,14 +154,4 @@ class RefreshTokenServiceTest {
 
         verify(refreshTokenRepository).delete(stored);
     }
-
-    // ---------- deleteRefreshTokenByUser ----------
-
-    @Test
-    @DisplayName("deleteByUser: делегирует удаление репозиторию")
-    void deleteByUser_delegatesToRepository() {
-        refreshTokenService.deleteRefreshTokenByUser(user);
-
-        verify(refreshTokenRepository).deleteByUser(user);
-    }
 }

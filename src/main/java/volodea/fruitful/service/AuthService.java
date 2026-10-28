@@ -68,6 +68,10 @@ public class AuthService {
         return createAuthResponse(user);
     }
 
+    public void logout(RefreshTokenRequest refreshTokenRequest) {
+        refreshTokenService.deleteRefreshToken(refreshTokenRequest.refreshToken());
+    }
+
     private AuthResponse createAuthResponse(User user) {
         return new AuthResponse(jwtService.generateJwtToken(user)
                 , refreshTokenService.generateRefreshToken(user).getToken());

@@ -4,10 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import volodea.fruitful.service.AuthService;
 import volodea.fruitful.dto.AuthResponse;
 import volodea.fruitful.dto.LoginRequest;
@@ -36,5 +33,11 @@ public class AuthController {
     public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(authService.refresh(refreshTokenRequest));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        authService.logout(refreshTokenRequest);
+        return ResponseEntity.noContent().build();
     }
 }
