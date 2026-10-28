@@ -26,7 +26,7 @@ export default function Recommendations() {
     }, []);
 
     return (
-        <aside className="rounded-2xl border bg-white p-4">
+        <aside className="lg:self-start lg:sticky lg:top-4 rounded-2xl border bg-white p-4">
             <h2 className="text-lg font-extrabold">You might like</h2>
 
             {loading && <p className="text-sm text-gray-500">Loading…</p>}
