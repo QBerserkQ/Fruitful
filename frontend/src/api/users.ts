@@ -8,5 +8,8 @@ export async function getRecommendedUsers(): Promise<RecommendedUser[]> {
         { id: 2, username: "nikita_r", tagline: "React · TypeScript" },
         { id: 3, username: "sofia_l", tagline: "PostgreSQL · DevOps" },
         { id: 4, username: "timur_b", tagline: "Backend · Docker" },
+        { id: 5, username: "dmitri_q", tagline: "Java · Spring" },
+        { id: 6, username: "vlad_r", tagline: "Backend · Docker" },
+        { id: 7, username: "alex_t", tagline: "React · TypeScript" },
     ];
 }
