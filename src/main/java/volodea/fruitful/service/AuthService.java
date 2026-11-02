@@ -5,11 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import volodea.fruitful.config.jwt.JwtService;
-import volodea.fruitful.dto.AuthResponse;
-import volodea.fruitful.dto.LoginRequest;
-import volodea.fruitful.dto.RefreshTokenRequest;
-import volodea.fruitful.dto.RegisterRequest;
-import volodea.fruitful.entity.RefreshToken;
+import volodea.fruitful.dto.*;
 import volodea.fruitful.entity.Role;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.InvalidCredentialsException;
@@ -28,7 +24,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public AuthResponse register(RegisterRequest registerRequest) {
+    public AuthResponse register(RegisterRequest registerRequest, String userAgent) {
         String email = registerRequest.email().trim().toLowerCase(Locale.ROOT);
         String username = registerRequest.username().trim();
 
@@ -42,10 +38,10 @@ public class AuthService {
                 .passwordHash(passwordEncoder.encode(registerRequest.password()))
                 .role(Role.USER).build());
 
-        return createAuthResponse(user);
+        return createAuthResponse(user, userAgent);
     }
 
-    public AuthResponse login(LoginRequest loginRequest) {
+    public AuthResponse login(LoginRequest loginRequest, String userAgent) {
         String email = loginRequest.email().trim().toLowerCase(Locale.ROOT);
 
         User user = userRepository.findByEmail(email)
@@ -55,25 +51,28 @@ public class AuthService {
             throw new InvalidCredentialsException();
         }
 
-        return createAuthResponse(user);
+        return createAuthResponse(user, userAgent);
     }
 
     @Transactional(noRollbackFor = RefreshTokenExpiredException.class)
     public AuthResponse refresh(RefreshTokenRequest refreshTokenRequest) {
-        RefreshToken refreshToken = refreshTokenService
-                .verifyRefreshToken(refreshTokenRequest.refreshToken());
+        RotatedSession session = refreshTokenService
+                .rotate(refreshTokenRequest.refreshToken());
 
-        User user = refreshToken.getUser();
+        User user = session.user();
 
-        return createAuthResponse(user);
+        return new AuthResponse(
+                jwtService.generateJwtToken(user),
+                session.refreshToken()
+        );
     }
 
     public void logout(RefreshTokenRequest refreshTokenRequest) {
-        refreshTokenService.deleteRefreshToken(refreshTokenRequest.refreshToken());
+        refreshTokenService.revoke(refreshTokenRequest.refreshToken());
     }
 
-    private AuthResponse createAuthResponse(User user) {
+    private AuthResponse createAuthResponse(User user, String userAgent) {
         return new AuthResponse(jwtService.generateJwtToken(user)
-                , refreshTokenService.generateRefreshToken(user).getToken());
+                , refreshTokenService.createSession(user, userAgent));
     }
 }

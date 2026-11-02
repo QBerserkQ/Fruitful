@@ -18,15 +18,17 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest,
+                                                 @RequestHeader(value = "User-Agent", required = false) String userAgent) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(authService.register(registerRequest));
+                .body(authService.register(registerRequest, userAgent));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest,
+                                              @RequestHeader(value = "User-Agent", required = false) String userAgent) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(authService.login(loginRequest));
+                .body(authService.login(loginRequest, userAgent));
     }
 
     @PostMapping("/refresh")
