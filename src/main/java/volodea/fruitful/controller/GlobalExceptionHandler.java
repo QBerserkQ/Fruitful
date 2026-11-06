@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import volodea.fruitful.dto.ErrorResponse;
+import volodea.fruitful.exception.ChangePasswordException;
 import volodea.fruitful.exception.NotFoundException;
 import volodea.fruitful.exception.UnauthorizedException;
 import volodea.fruitful.exception.UserAlreadyExistException;
@@ -66,6 +67,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleHttpMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
                 .body(new ErrorResponse("Method " + ex.getMethod() + " not supported", 405, LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(ChangePasswordException.class)
+    public ResponseEntity<ErrorResponse> handleChangePassword(ChangePasswordException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ex.getMessage(), 400, LocalDateTime.now()));
     }
 
     @ExceptionHandler(Exception.class)
