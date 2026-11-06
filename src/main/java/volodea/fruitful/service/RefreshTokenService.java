@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import volodea.fruitful.exception.SessionVerificationException;
 import volodea.fruitful.util.TokenHasher;
 import volodea.fruitful.dto.RotatedSession;
 import volodea.fruitful.entity.RefreshToken;
@@ -39,7 +40,7 @@ public class RefreshTokenService {
         RefreshToken refreshToken = RefreshToken.builder()
                 .user(user)
                 .tokenHash(TokenHasher.sha256(rawToken))
-                .userAgent(truncate(userAgent, 255))
+                .userAgent(truncate(userAgent))
                 .expiresAt(Instant.now().plusMillis(expMs).atOffset(ZoneOffset.UTC))
                 .build();
 
@@ -73,8 +74,24 @@ public class RefreshTokenService {
                 .ifPresent(refreshTokenRepository::delete);
     }
 
-    private static String truncate(String value, int max) {
+    private static String truncate(String value) {
         if (value == null) return null;
-        return value.length() <= max ? value : value.substring(0, max);
+        return value.length() <= 255 ? value : value.substring(0, 255);
+    }
+
+    public Long getValidSession(User user, String rawRefreshToken) {
+        RefreshToken refreshToken = refreshTokenRepository
+                .findByTokenHashAndUser(TokenHasher.sha256(rawRefreshToken), user)
+                .orElseThrow(SessionVerificationException::new);
+
+        if(refreshToken.getExpiresAt().isBefore(OffsetDateTime.now(ZoneOffset.UTC)))
+            throw new SessionVerificationException();
+
+        return refreshToken.getId();
+    }
+
+    @Transactional
+    public void revokeAllExcept(User user, Long sessionId) {
+        refreshTokenRepository.deleteAllByUserAndIdNot(user, sessionId);
     }
 }

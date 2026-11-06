@@ -13,4 +13,8 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
 
     @EntityGraph(attributePaths = "user")
     Optional<RefreshToken> findByTokenHash(String tokenHash);
+
+    Optional<RefreshToken> findByTokenHashAndUser(String tokenHash, User user);
+
+    void deleteAllByUserAndIdNot(User user, Long id);
 }

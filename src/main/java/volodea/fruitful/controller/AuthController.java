@@ -4,12 +4,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import volodea.fruitful.dto.*;
 import volodea.fruitful.service.AuthService;
-import volodea.fruitful.dto.AuthResponse;
-import volodea.fruitful.dto.LoginRequest;
-import volodea.fruitful.dto.RefreshTokenRequest;
-import volodea.fruitful.dto.RegisterRequest;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -40,6 +38,13 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
         authService.logout(refreshTokenRequest);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<Void> changePassword(Authentication authentication,
+                                               @Valid @RequestBody ChangePasswordRequest passwordRequest) {
+        authService.changePassword(authentication.getName(), passwordRequest);
         return ResponseEntity.noContent().build();
     }
 }

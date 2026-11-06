@@ -8,9 +8,7 @@ import volodea.fruitful.config.jwt.JwtService;
 import volodea.fruitful.dto.*;
 import volodea.fruitful.entity.Role;
 import volodea.fruitful.entity.User;
-import volodea.fruitful.exception.InvalidCredentialsException;
-import volodea.fruitful.exception.RefreshTokenExpiredException;
-import volodea.fruitful.exception.UserAlreadyExistException;
+import volodea.fruitful.exception.*;
 import volodea.fruitful.repository.UserRepository;
 
 import java.util.Locale;
@@ -69,6 +67,28 @@ public class AuthService {
 
     public void logout(RefreshTokenRequest refreshTokenRequest) {
         refreshTokenService.revoke(refreshTokenRequest.refreshToken());
+    }
+
+    @Transactional
+    public void changePassword(String email, ChangePasswordRequest passwordRequest) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UserNotFoundException(email)
+        );
+
+        Long sessionId = refreshTokenService.getValidSession(user, passwordRequest.refreshToken());
+
+        if(!passwordEncoder.matches(passwordRequest.oldPassword(), user.getPasswordHash())) {
+            throw new CurrentPasswordMismatchException();
+        }
+        if(passwordRequest.oldPassword().equals(passwordRequest.newPassword())) {
+            throw new NewPasswordSameAsCurrentException();
+        }
+
+        String newPasswordHash = passwordEncoder.encode(passwordRequest.newPassword());
+        user.setPasswordHash(newPasswordHash);
+        userRepository.save(user);
+
+        refreshTokenService.revokeAllExcept(user, sessionId);
     }
 
     private AuthResponse createAuthResponse(User user, String userAgent) {
