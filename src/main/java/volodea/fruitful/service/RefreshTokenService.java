@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import volodea.fruitful.dto.SessionResponse;
 import volodea.fruitful.exception.SessionVerificationException;
+import volodea.fruitful.exception.UserNotFoundException;
+import volodea.fruitful.repository.UserRepository;
 import volodea.fruitful.util.TokenHasher;
-import volodea.fruitful.dto.RotatedSession;
+import volodea.fruitful.dto.SessionTokens;
 import volodea.fruitful.entity.RefreshToken;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.InvalidRefreshTokenException;
@@ -20,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
 
     @Value("${fruitful.security.jwt.refreh-token-expiration-ms}")
     private long expMs;
@@ -93,5 +97,35 @@ public class RefreshTokenService {
     @Transactional
     public void revokeAllExcept(User user, Long sessionId) {
         refreshTokenRepository.deleteAllByUserAndIdNot(user, sessionId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SessionResponse> getAllSessions(String email, Long currentSessionId) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UserNotFoundException(email)
+        );
+
+        OffsetDateTime now = OffsetDateTime.now();
+        List<RefreshToken> tokens = refreshTokenRepository.findByUserAndExpiresAtAfterOrderByLastUsedAtDesc(
+                user, now
+        );
+
+        return tokens.stream()
+                .map(token -> new SessionResponse(
+                        token.getId()
+                        , token.getUserAgent()
+                        , token.getLastUsedAt()
+                        , token.getId().equals(currentSessionId)
+                        ))
+                .toList();
+    }
+
+    @Transactional
+    public void deleteSession(String email, Long sessionId) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UserNotFoundException(email)
+        );
+
+        refreshTokenRepository.deleteByIdAndUser(sessionId, user);
     }
 }
