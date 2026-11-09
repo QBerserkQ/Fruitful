@@ -9,9 +9,9 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import volodea.fruitful.dto.JwtAuthDetails;
 import volodea.fruitful.service.CustomUserDetailService;
 
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 , userDetails.getAuthorities()
                         );
 
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                authToken.setDetails(new JwtAuthDetails(jwtService.extractSessionId(token)));
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }

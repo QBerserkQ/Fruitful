@@ -10,7 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import volodea.fruitful.dto.RotatedSession;
+import volodea.fruitful.dto.SessionTokens;
 import volodea.fruitful.entity.RefreshToken;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.InvalidRefreshTokenException;
@@ -53,7 +53,8 @@ class RefreshTokenServiceTest {
         when(refreshTokenRepository.findByUserOrderByLastUsedAtAsc(user))
                 .thenReturn(List.of());
 
-        String rawToken = refreshTokenService.createSession(user, "Mozilla/5.0");
+        SessionTokens session = refreshTokenService.createSession(user, "Mozilla/5.0");
+        String rawToken = session.refreshToken();
 
         ArgumentCaptor<RefreshToken> captor = ArgumentCaptor.forClass(RefreshToken.class);
         verify(refreshTokenRepository).save(captor.capture());
@@ -144,7 +145,7 @@ class RefreshTokenServiceTest {
         when(refreshTokenRepository.findByTokenHash(TokenHasher.sha256(rawToken)))
                 .thenReturn(Optional.of(stored));
 
-        RotatedSession result = refreshTokenService.rotate(rawToken);
+        SessionTokens result = refreshTokenService.rotate(rawToken);
 
         assertThat(result.user()).isEqualTo(user);
         assertThat(result.refreshToken())

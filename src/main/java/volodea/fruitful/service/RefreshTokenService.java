@@ -27,7 +27,7 @@ public class RefreshTokenService {
     private static final int MAX_SESSIONS = 3;
 
     @Transactional
-    public String createSession(User user, String userAgent) {
+    public SessionTokens createSession(User user, String userAgent) {
         List<RefreshToken> sessions = refreshTokenRepository.findByUserOrderByLastUsedAtAsc(user);
         int excess = sessions.size() - MAX_SESSIONS + 1;
 
@@ -46,11 +46,11 @@ public class RefreshTokenService {
 
         refreshTokenRepository.save(refreshToken);
 
-        return  rawToken;
+        return new SessionTokens(user, rawToken, refreshToken.getId());
     }
 
     @Transactional(noRollbackFor = RefreshTokenExpiredException.class)
-    public RotatedSession rotate(String rawToken) {
+    public SessionTokens rotate(String rawToken) {
         RefreshToken refreshToken = refreshTokenRepository.findByTokenHash(
                 TokenHasher.sha256(rawToken)
         ).orElseThrow(InvalidRefreshTokenException::new);
@@ -65,7 +65,7 @@ public class RefreshTokenService {
         refreshToken.setTokenHash(TokenHasher.sha256(newToken));
         refreshToken.setLastUsedAt(OffsetDateTime.now(ZoneOffset.UTC));
 
-        return new RotatedSession(refreshToken.getUser(), newToken);
+        return new SessionTokens(refreshToken.getUser(), newToken, refreshToken.getId());
     }
 
     @Transactional
