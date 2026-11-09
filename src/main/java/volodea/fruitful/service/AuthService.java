@@ -54,13 +54,13 @@ public class AuthService {
 
     @Transactional(noRollbackFor = RefreshTokenExpiredException.class)
     public AuthResponse refresh(RefreshTokenRequest refreshTokenRequest) {
-        RotatedSession session = refreshTokenService
+        SessionTokens session = refreshTokenService
                 .rotate(refreshTokenRequest.refreshToken());
 
         User user = session.user();
 
         return new AuthResponse(
-                jwtService.generateJwtToken(user),
+                jwtService.generateJwtToken(user, session.sessionId()),
                 session.refreshToken()
         );
     }
@@ -92,7 +92,8 @@ public class AuthService {
     }
 
     private AuthResponse createAuthResponse(User user, String userAgent) {
-        return new AuthResponse(jwtService.generateJwtToken(user)
-                , refreshTokenService.createSession(user, userAgent));
+        SessionTokens session = refreshTokenService.createSession(user, userAgent);
+        return new AuthResponse(jwtService.generateJwtToken(user, session.sessionId())
+                , session.refreshToken());
     }
 }

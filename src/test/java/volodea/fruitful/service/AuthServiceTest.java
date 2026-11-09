@@ -13,7 +13,7 @@ import volodea.fruitful.dto.AuthResponse;
 import volodea.fruitful.dto.LoginRequest;
 import volodea.fruitful.dto.RefreshTokenRequest;
 import volodea.fruitful.dto.RegisterRequest;
-import volodea.fruitful.dto.RotatedSession;
+import volodea.fruitful.dto.SessionTokens;
 import volodea.fruitful.entity.Role;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.InvalidCredentialsException;
@@ -38,6 +38,9 @@ class AuthServiceTest {
 
     private static final String USER_AGENT = "test-agent";
 
+    // Намеренно отличается от id пользователя (1L), чтобы тесты ловили путаницу user id и session id.
+    private static final Long SESSION_ID = 42L;
+
     @Mock private JwtService jwtService;
     @Mock private RefreshTokenService refreshTokenService;
     @Mock private UserRepository userRepository;
@@ -58,7 +61,7 @@ class AuthServiceTest {
     // ---------- register ----------
 
     @Test
-    @DisplayName("register: сохраняет нормализованные email и username, создаёт сессию с user-agent, возвращает оба токена")
+    @DisplayName("register: сохраняет нормализованные email и username, создаёт сессию с user-agent, кладёт id сессии в JWT")
     void register_success_normalizesAndReturnsTokens() {
         RegisterRequest request = new RegisterRequest("  john  ", "  Test@Mail.COM ", "password123");
 
@@ -66,8 +69,9 @@ class AuthServiceTest {
         when(userRepository.existsByUsername("john")).thenReturn(false);
         when(passwordEncoder.encode("password123")).thenReturn("hashed");
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(jwtService.generateJwtToken(any(User.class))).thenReturn("jwt");
-        when(refreshTokenService.createSession(any(User.class), eq(USER_AGENT))).thenReturn("refresh");
+        when(refreshTokenService.createSession(any(User.class), eq(USER_AGENT)))
+                .thenReturn(new SessionTokens(userOf(), "refresh", SESSION_ID));
+        when(jwtService.generateJwtToken(any(User.class), eq(SESSION_ID))).thenReturn("jwt");
 
         AuthResponse response = authService.register(request, USER_AGENT);
 
@@ -114,15 +118,16 @@ class AuthServiceTest {
     // ---------- login ----------
 
     @Test
-    @DisplayName("login: успех, email нормализуется, сессия создаётся с user-agent")
+    @DisplayName("login: успех, email нормализуется, id созданной сессии попадает в JWT")
     void login_success() {
         User user = userOf();
         LoginRequest request = new LoginRequest("  Test@Mail.COM ", "password123");
 
         when(userRepository.findByEmail("test@mail.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password123", "hashed")).thenReturn(true);
-        when(jwtService.generateJwtToken(user)).thenReturn("jwt");
-        when(refreshTokenService.createSession(user, USER_AGENT)).thenReturn("refresh");
+        when(refreshTokenService.createSession(user, USER_AGENT))
+                .thenReturn(new SessionTokens(user, "refresh", SESSION_ID));
+        when(jwtService.generateJwtToken(user, SESSION_ID)).thenReturn("jwt");
 
         AuthResponse response = authService.login(request, USER_AGENT);
 
@@ -137,8 +142,9 @@ class AuthServiceTest {
 
         when(userRepository.findByEmail("test@mail.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password123", "hashed")).thenReturn(true);
-        when(jwtService.generateJwtToken(user)).thenReturn("jwt");
-        when(refreshTokenService.createSession(user, null)).thenReturn("refresh");
+        when(refreshTokenService.createSession(user, null))
+                .thenReturn(new SessionTokens(user, "refresh", SESSION_ID));
+        when(jwtService.generateJwtToken(user, SESSION_ID)).thenReturn("jwt");
 
         AuthResponse response = authService.login(request, null);
 
@@ -176,12 +182,13 @@ class AuthServiceTest {
     // ---------- refresh ----------
 
     @Test
-    @DisplayName("refresh: валидный токен -> новый access и ротированный refresh, новая сессия НЕ создаётся")
+    @DisplayName("refresh: валидный токен -> новый access с тем же id сессии и ротированный refresh, новая сессия НЕ создаётся")
     void refresh_success() {
         User user = userOf();
 
-        when(refreshTokenService.rotate("old")).thenReturn(new RotatedSession(user, "new-refresh"));
-        when(jwtService.generateJwtToken(user)).thenReturn("new-jwt");
+        when(refreshTokenService.rotate("old"))
+                .thenReturn(new SessionTokens(user, "new-refresh", SESSION_ID));
+        when(jwtService.generateJwtToken(user, SESSION_ID)).thenReturn("new-jwt");
 
         AuthResponse response = authService.refresh(new RefreshTokenRequest("old"));
 

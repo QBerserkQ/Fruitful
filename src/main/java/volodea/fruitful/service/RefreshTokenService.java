@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import volodea.fruitful.dto.SessionResponse;
 import volodea.fruitful.exception.SessionVerificationException;
+import volodea.fruitful.exception.UserNotFoundException;
+import volodea.fruitful.repository.UserRepository;
 import volodea.fruitful.util.TokenHasher;
-import volodea.fruitful.dto.RotatedSession;
+import volodea.fruitful.dto.SessionTokens;
 import volodea.fruitful.entity.RefreshToken;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.InvalidRefreshTokenException;
@@ -20,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
 
     @Value("${fruitful.security.jwt.refreh-token-expiration-ms}")
     private long expMs;
@@ -27,7 +31,7 @@ public class RefreshTokenService {
     private static final int MAX_SESSIONS = 3;
 
     @Transactional
-    public String createSession(User user, String userAgent) {
+    public SessionTokens createSession(User user, String userAgent) {
         List<RefreshToken> sessions = refreshTokenRepository.findByUserOrderByLastUsedAtAsc(user);
         int excess = sessions.size() - MAX_SESSIONS + 1;
 
@@ -46,11 +50,11 @@ public class RefreshTokenService {
 
         refreshTokenRepository.save(refreshToken);
 
-        return  rawToken;
+        return new SessionTokens(user, rawToken, refreshToken.getId());
     }
 
     @Transactional(noRollbackFor = RefreshTokenExpiredException.class)
-    public RotatedSession rotate(String rawToken) {
+    public SessionTokens rotate(String rawToken) {
         RefreshToken refreshToken = refreshTokenRepository.findByTokenHash(
                 TokenHasher.sha256(rawToken)
         ).orElseThrow(InvalidRefreshTokenException::new);
@@ -65,7 +69,7 @@ public class RefreshTokenService {
         refreshToken.setTokenHash(TokenHasher.sha256(newToken));
         refreshToken.setLastUsedAt(OffsetDateTime.now(ZoneOffset.UTC));
 
-        return new RotatedSession(refreshToken.getUser(), newToken);
+        return new SessionTokens(refreshToken.getUser(), newToken, refreshToken.getId());
     }
 
     @Transactional
@@ -93,5 +97,35 @@ public class RefreshTokenService {
     @Transactional
     public void revokeAllExcept(User user, Long sessionId) {
         refreshTokenRepository.deleteAllByUserAndIdNot(user, sessionId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SessionResponse> getAllSessions(String email, Long currentSessionId) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UserNotFoundException(email)
+        );
+
+        OffsetDateTime now = OffsetDateTime.now();
+        List<RefreshToken> tokens = refreshTokenRepository.findByUserAndExpiresAtAfterOrderByLastUsedAtDesc(
+                user, now
+        );
+
+        return tokens.stream()
+                .map(token -> new SessionResponse(
+                        token.getId()
+                        , token.getUserAgent()
+                        , token.getLastUsedAt()
+                        , token.getId().equals(currentSessionId)
+                        ))
+                .toList();
+    }
+
+    @Transactional
+    public void deleteSession(String email, Long sessionId) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UserNotFoundException(email)
+        );
+
+        refreshTokenRepository.deleteByIdAndUser(sessionId, user);
     }
 }
