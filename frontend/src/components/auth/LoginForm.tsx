@@ -49,7 +49,7 @@ export const LoginForm = () => {
         setIsSubmitting(true);
         try {
             await login(formData);
-            navigate('/dashboard', {replace: true});
+            navigate('/', {replace: true});
         } catch (err) {
             setServerError(err instanceof ApiError ? err.message : 'Something went wrong, repeat later');
         } finally {

@@ -1,3 +1,5 @@
+import {tokenStorage} from "./tokenStorage.ts";
+
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 export class ApiError extends Error {
@@ -21,5 +23,20 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
         throw new ApiError(response.status, await response.text());
     }
 
+    if (response.status === 204) {
+        return undefined as T;
+    }
+
     return response.json() as Promise<T>;
+}
+
+export function authRequest<T>(path: string, options: RequestInit ={}): Promise<T> {
+    const token = tokenStorage.getAccess();
+    return request<T> (path, {
+        ...options,
+        headers: {
+            ...options.headers,
+            Authorization: `Bearer ${token}`,
+        },
+    })
 }

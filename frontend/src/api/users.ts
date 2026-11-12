@@ -1,4 +1,5 @@
-import type { RecommendedUser } from "./types.ts";
+import type {RecommendedUser, User} from "./types.ts";
+import { authRequest } from "./client";
 
 export async function getRecommendedUsers(): Promise<RecommendedUser[]> {
     // TODO: заменить на запрос через client.ts, когда будет эндпоинт
@@ -12,4 +13,35 @@ export async function getRecommendedUsers(): Promise<RecommendedUser[]> {
         { id: 6, username: "vlad_r", tagline: "Backend · Docker" },
         { id: 7, username: "alex_t", tagline: "React · TypeScript" },
     ];
+}
+
+export const getMe = () => authRequest<User>("/api/users/me");
+
+export function changeUsername(username: string) {
+    return authRequest<void>("/api/users/me/username", {
+        method: "PUT",
+        body: JSON.stringify({username}),
+    })
+}
+
+export function changePassword(oldPassword: string, newPassword: string, refreshToken: string) {
+    return authRequest<void>("/api/auth/password", {
+        method: "PUT",
+        body: JSON.stringify({oldPassword, newPassword, refreshToken})
+    })
+}
+
+export type Session = {
+    id: number;
+    userAgent: string;
+    lastUsedAt: string;
+    current: boolean;
+}
+
+export function getSessions() {
+    return authRequest<Session[]>("/api/users/me/sessions");
+}
+
+export function deleteSession(id: number) {
+    return authRequest<void>(`/api/users/me/sessions${id}`, { method: "DELETE" })
 }
