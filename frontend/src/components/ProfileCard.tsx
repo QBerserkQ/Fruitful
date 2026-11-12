@@ -1,8 +1,10 @@
+import type {User} from "../api/types.ts";
+
 interface ProfileCardProps {
-    username: string;
+    user: User;
 }
 
-export default function ProfileCard ({ username } : ProfileCardProps) {
+export default function ProfileCard ({ user } : ProfileCardProps) {
     return (
         <main className="flex min-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl border bg-white">
             <div className="relative h-40 overflow-hidden bg-purple-900">
@@ -23,15 +25,15 @@ export default function ProfileCard ({ username } : ProfileCardProps) {
                     🫐
                 </div>
                 <div className="pb-1">
-                    <h1 className="text-2xl font-extrabold leading-tight">{username}</h1>
-                    <p className="text-sm text-gray-500">@{username}</p>
+                    <h1 className="text-2xl font-extrabold leading-tight">{user.username}</h1>
+                    <p className="text-sm text-gray-500">{user.email}</p>
                 </div>
             </div>
 
             <div className="flex flex-wrap gap-x-6 gap-y-2 border-b px-6 py-4 text-sm text-gray-500">
-                <span><b className="mr-1 text-lg text-gray-900">128</b>Posts</span>
-                <span><b className="mr-1 text-lg text-gray-900">342</b>Subscribers</span>
-                <span><b className="mr-1 text-lg text-gray-900">96</b>Subscriptions</span>
+                <span><b className="mr-1 text-lg text-gray-900">0</b>Posts</span>
+                <span><b className="mr-1 text-lg text-gray-900">0</b>Subscribers</span>
+                <span><b className="mr-1 text-lg text-gray-900">0</b>Subscriptions</span>
             </div>
 
             <section className="flex-1 bg-gray-50 p-6">

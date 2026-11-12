@@ -21,6 +21,7 @@ export interface RegisterRequest {
 export interface User {
     email: string;
     username: string;
+    role: string;
 }
 
 export interface RecommendedUser {
