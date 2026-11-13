@@ -3,6 +3,7 @@ import {createContext, type ReactNode, useCallback, useContext, useEffect, useSt
 import {apiLogin, apiLogout, apiRegister} from "../api/auth.ts";
 import {tokenStorage} from "../api/tokenStorage.ts";
 import {getMe} from "../api/users.ts";
+import {setAuthFailureHandler} from "../api/client.ts";
 
 interface AuthContextValue {
     user: User | null;
@@ -43,7 +44,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (refreshToken) {
                 await apiLogout({refreshToken});
             }
-        } catch {}
+        } catch {
+            //server unreachable or session already revoked: proceeding with local logout anyway
+        }
         finally {
             localStorage.clear();
             setUser(null);
@@ -63,6 +66,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
         init();
     }, [refreshUser]);
+
+    useEffect(() => {
+        setAuthFailureHandler(() => setUser(null));
+        return () => setAuthFailureHandler(null);
+    }, [])
 
     return (
         <AuthContext.Provider value={{ user, isAuthenticated: user !== null, isLoading, login, register, logout, refreshUser }}>
