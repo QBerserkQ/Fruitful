@@ -1,6 +1,6 @@
 import type {LoginRequest, RegisterRequest, User} from "../api/types.ts";
 import {createContext, type ReactNode, useCallback, useContext, useEffect, useState} from "react";
-import {apiLogin, apiRegister} from "../api/auth.ts";
+import {apiLogin, apiLogout, apiRegister} from "../api/auth.ts";
 import {tokenStorage} from "../api/tokenStorage.ts";
 import {getMe} from "../api/users.ts";
 
@@ -10,7 +10,7 @@ interface AuthContextValue {
     isLoading: boolean;
     login: (data: LoginRequest) => Promise<void>;
     register: (data: RegisterRequest) => Promise<void>;
-    logout: () => void;
+    logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
 }
 
@@ -37,9 +37,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await refreshUser();
     }
 
-    const logout = () => {
-        tokenStorage.clear();
-        setUser(null);
+    const logout = async () => {
+        const refreshToken = tokenStorage.getRefresh();
+        try {
+            if (refreshToken) {
+                await apiLogout({refreshToken});
+            }
+        } catch {}
+        finally {
+            localStorage.clear();
+            setUser(null);
+        }
     };
 
     useEffect(() => {

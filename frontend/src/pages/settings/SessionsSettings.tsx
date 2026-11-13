@@ -21,7 +21,7 @@ export default function SessionsSettings() {
         try {
             await deleteSession(s.id);
             if (s.current) {
-                logout(); // вышли из текущей сессии
+                await logout(); // вышли из текущей сессии
                 return;
             }
             setSessions((prev) => prev.filter((x) => x.id !== s.id));
@@ -59,7 +59,6 @@ export default function SessionsSettings() {
 
                             {open && (
                                 <div className="space-y-1 border-t border-gray-200 px-4 py-3 text-sm text-gray-600">
-                                    <p>Started: {new Date().toLocaleString()}</p>
                                     <p>Last active: {new Date(s.lastUsedAt).toLocaleString()}</p>
                                     <button
                                         onClick={() => handleLogout(s)}

@@ -27,3 +27,10 @@ export function apiRefreshToken(data: RefreshTokenRequest) {
        body: JSON.stringify(data)
     });
 }
+
+export function apiLogout(data: RefreshTokenRequest) {
+    return request<void>(`${AUTH_PATH}/logout`, {
+        method: "POST",
+        body: JSON.stringify(data)
+    });
+}
