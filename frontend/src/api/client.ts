@@ -20,7 +20,14 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
     });
 
     if (!response.ok) {
-        throw new ApiError(response.status, await response.text());
+        let message = "Something went wrong :(";
+        try {
+            const body = await response.json();
+            message = body.message ?? message;
+        } catch (e){
+            console.warn("Failed to parse the error body", e)
+        }
+        throw new ApiError(response.status, message);
     }
 
     if (response.status === 204) {
