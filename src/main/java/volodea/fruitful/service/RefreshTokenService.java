@@ -18,6 +18,7 @@ import volodea.fruitful.repository.RefreshTokenRepository;
 
 import java.time.*;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -32,9 +33,18 @@ public class RefreshTokenService {
 
     @Transactional
     public SessionTokens createSession(User user, String userAgent) {
+        String ua = truncate(userAgent);
         List<RefreshToken> sessions = refreshTokenRepository.findByUserOrderByLastUsedAtAsc(user);
-        int excess = sessions.size() - MAX_SESSIONS + 1;
 
+        List<RefreshToken> sameDevices = sessions.stream()
+                .filter(s -> Objects.equals(s.getUserAgent(), ua))
+                .toList();
+        if(!sameDevices.isEmpty()) {
+            refreshTokenRepository.deleteAll(sameDevices);
+            sessions.removeAll(sameDevices);
+        }
+
+        int excess = sessions.size() - MAX_SESSIONS + 1;
         if(excess > 0) {
             refreshTokenRepository.deleteAll(sessions.subList(0, excess));
         }
