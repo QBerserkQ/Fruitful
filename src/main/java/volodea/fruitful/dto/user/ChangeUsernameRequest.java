@@ -1,4 +1,4 @@
-package volodea.fruitful.dto;
+package volodea.fruitful.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

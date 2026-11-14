@@ -12,7 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import volodea.fruitful.dto.UserResponse;
+import volodea.fruitful.dto.user.UserResponse;
 import volodea.fruitful.entity.Role;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.UserNotFoundException;

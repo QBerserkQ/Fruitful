@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import volodea.fruitful.dto.ChangePasswordRequest;
+import volodea.fruitful.dto.auth.ChangePasswordRequest;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.CurrentPasswordMismatchException;
 import volodea.fruitful.exception.NewPasswordSameAsCurrentException;

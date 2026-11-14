@@ -11,7 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import volodea.fruitful.dto.JwtAuthDetails;
+import volodea.fruitful.dto.auth.JwtAuthDetails;
 import volodea.fruitful.service.CustomUserDetailService;
 
 import java.io.IOException;

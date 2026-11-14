@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
-import volodea.fruitful.dto.ChangeUsernameRequest;
+import volodea.fruitful.dto.user.ChangeUsernameRequest;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.UserAlreadyExistException;
 import volodea.fruitful.exception.UserNotFoundException;

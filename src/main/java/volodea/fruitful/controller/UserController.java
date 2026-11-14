@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import volodea.fruitful.dto.ChangeUsernameRequest;
-import volodea.fruitful.dto.UserResponse;
+import volodea.fruitful.dto.user.ChangeUsernameRequest;
+import volodea.fruitful.dto.user.UserResponse;
 import volodea.fruitful.service.UserService;
 
 @RestController
