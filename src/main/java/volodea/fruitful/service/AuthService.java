@@ -72,7 +72,7 @@ public class AuthService {
     @Transactional
     public void changePassword(String email, ChangePasswordRequest passwordRequest) {
         User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new UserNotFoundException(email)
+                () -> new UserWithEmailNotFoundException(email)
         );
 
         Long sessionId = refreshTokenService.getValidSession(user, passwordRequest.refreshToken());

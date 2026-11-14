@@ -40,5 +40,7 @@ public class Conversation {
     void onCreate() {
         OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         if (createdAt == null) createdAt = now;
+        if (userALastReadAt == null) userALastReadAt = now;
+        if (userBLastReadAt == null) userBLastReadAt = now;
     }
 }

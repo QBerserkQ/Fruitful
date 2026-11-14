@@ -7,7 +7,7 @@ import volodea.fruitful.dto.user.ChangeUsernameRequest;
 import volodea.fruitful.dto.user.UserResponse;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.UserAlreadyExistException;
-import volodea.fruitful.exception.UserNotFoundException;
+import volodea.fruitful.exception.UserWithEmailNotFoundException;
 import volodea.fruitful.repository.UserRepository;
 
 @Service
@@ -17,14 +17,14 @@ public class UserService {
 
     public UserResponse getCurrentUser(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(email));
+                .orElseThrow(() -> new UserWithEmailNotFoundException(email));
 
         return new UserResponse(user.getUsername(), user.getEmail(), user.getRole());
     }
 
     public void changeUsername(String email, ChangeUsernameRequest usernameRequest) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(email));
+                .orElseThrow(() -> new UserWithEmailNotFoundException(email));
 
         String newUsername = usernameRequest.username().trim();
         if(user.getUsername().equals(newUsername))

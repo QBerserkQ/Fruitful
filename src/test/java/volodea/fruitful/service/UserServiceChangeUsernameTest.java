@@ -10,7 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import volodea.fruitful.dto.user.ChangeUsernameRequest;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.UserAlreadyExistException;
-import volodea.fruitful.exception.UserNotFoundException;
+import volodea.fruitful.exception.UserWithEmailNotFoundException;
 import volodea.fruitful.repository.UserRepository;
 
 import java.util.Optional;
@@ -105,7 +105,7 @@ class UserServiceChangeUsernameTest {
 
         assertThatThrownBy(() ->
                 userService.changeUsername(EMAIL, new ChangeUsernameRequest(NEW_USERNAME)))
-                .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(UserWithEmailNotFoundException.class);
 
         verify(userRepository, never()).existsByUsername(any());
         verify(userRepository, never()).save(any());

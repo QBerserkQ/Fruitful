@@ -13,7 +13,7 @@ import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.CurrentPasswordMismatchException;
 import volodea.fruitful.exception.NewPasswordSameAsCurrentException;
 import volodea.fruitful.exception.SessionVerificationException;
-import volodea.fruitful.exception.UserNotFoundException;
+import volodea.fruitful.exception.UserWithEmailNotFoundException;
 import volodea.fruitful.repository.UserRepository;
 
 import java.util.Optional;
@@ -89,7 +89,7 @@ class AuthServiceChangePasswordTest {
         when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authService.changePassword(EMAIL, request))
-                .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(UserWithEmailNotFoundException.class);
 
         verifyNoInteractions(refreshTokenService, passwordEncoder);
         verify(userRepository, never()).save(any());

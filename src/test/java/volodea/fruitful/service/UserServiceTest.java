@@ -15,7 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import volodea.fruitful.dto.user.UserResponse;
 import volodea.fruitful.entity.Role;
 import volodea.fruitful.entity.User;
-import volodea.fruitful.exception.UserNotFoundException;
+import volodea.fruitful.exception.UserWithEmailNotFoundException;
 import volodea.fruitful.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,6 +46,6 @@ class UserServiceTest {
         when(userRepository.findByEmail("ghost@example.com")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.getCurrentUser("ghost@example.com"))
-                .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(UserWithEmailNotFoundException.class);
     }
 }

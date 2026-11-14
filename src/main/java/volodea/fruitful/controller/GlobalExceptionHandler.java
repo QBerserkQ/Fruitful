@@ -12,10 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import volodea.fruitful.dto.ErrorResponse;
-import volodea.fruitful.exception.ChangePasswordException;
-import volodea.fruitful.exception.NotFoundException;
-import volodea.fruitful.exception.UnauthorizedException;
-import volodea.fruitful.exception.UserAlreadyExistException;
+import volodea.fruitful.exception.*;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -85,5 +82,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public void rethrowAccessDenied(AccessDeniedException e) {
         throw e;
+    }
+
+    @ExceptionHandler(SelfConversationNotAllowedException.class)
+    public ResponseEntity<ErrorResponse> handleSelfConversation(SelfConversationNotAllowedException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ex.getMessage(), 400, LocalDateTime.now()));
     }
 }
