@@ -46,12 +46,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests( auth -> auth
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/error").permitAll()
-                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/error", "/ws/**").permitAll()
 
                         .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/auth/password").authenticated()
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
 
                         .requestMatchers("/api/conversations/**").authenticated()
 
