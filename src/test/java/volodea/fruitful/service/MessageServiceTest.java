@@ -8,11 +8,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import volodea.fruitful.dto.chat.ConversationResponse;
 import volodea.fruitful.dto.chat.MessageResponse;
+import volodea.fruitful.dto.chat.MessageSentEvent;
 import volodea.fruitful.dto.chat.SendMessageRequest;
 import volodea.fruitful.entity.Conversation;
 import volodea.fruitful.entity.Message;
@@ -46,6 +48,8 @@ class MessageServiceTest {
     private ConversationRepository conversationRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private MessageService messageService;
@@ -172,6 +176,36 @@ class MessageServiceTest {
     }
 
     @Test
+    void sendMessage_publishesEventToOtherParticipant_whenSenderIsUserA() {
+        User alice = user(1L, "alice");
+        Conversation conv = conversation(10L, alice, user(2L, "bob"));
+        stubSenderAndConversation(alice, conv);
+        stubSaveMessage();
+
+        MessageResponse response = messageService.sendMessage(1L, 10L, new SendMessageRequest("привет"));
+
+        ArgumentCaptor<MessageSentEvent> captor = ArgumentCaptor.forClass(MessageSentEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        assertThat(captor.getValue().recipientId()).isEqualTo(2L);
+        assertThat(captor.getValue().message()).isEqualTo(response);
+    }
+
+    @Test
+    void sendMessage_publishesEventToOtherParticipant_whenSenderIsUserB() {
+        User bob = user(2L, "bob");
+        Conversation conv = conversation(10L, user(1L, "alice"), bob);
+        stubSenderAndConversation(bob, conv);
+        stubSaveMessage();
+
+        MessageResponse response = messageService.sendMessage(2L, 10L, new SendMessageRequest("ответ"));
+
+        ArgumentCaptor<MessageSentEvent> captor = ArgumentCaptor.forClass(MessageSentEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        assertThat(captor.getValue().recipientId()).isEqualTo(1L);
+        assertThat(captor.getValue().message()).isEqualTo(response);
+    }
+
+    @Test
     void sendMessage_throwsNotFound_whenUserIsNotParticipant() {
         User carol = user(3L, "carol");
         Conversation conv = conversation(10L, user(1L, "alice"), user(2L, "bob"));
@@ -181,6 +215,7 @@ class MessageServiceTest {
                 .isInstanceOf(ConversationNotFoundException.class);
 
         verify(messageRepository, never()).save(any());
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test
@@ -192,6 +227,7 @@ class MessageServiceTest {
                 .isInstanceOf(ConversationNotFoundException.class);
 
         verify(messageRepository, never()).save(any());
+        verifyNoInteractions(eventPublisher);
     }
 
     // ============================== getMessages ==============================

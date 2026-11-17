@@ -1,6 +1,7 @@
 package volodea.fruitful.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import volodea.fruitful.dto.chat.ConversationResponse;
 import volodea.fruitful.dto.chat.MessageResponse;
+import volodea.fruitful.dto.chat.MessageSentEvent;
 import volodea.fruitful.dto.chat.SendMessageRequest;
 import volodea.fruitful.entity.Conversation;
 import volodea.fruitful.entity.Message;
@@ -31,6 +33,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final ConversationRepository conversationRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ConversationResponse getOrCreateConversation(Long currentUserId, Long partnerId) {
         Conversation conversation = findOrCreateConversation(currentUserId, partnerId);
@@ -92,8 +95,16 @@ public class MessageService {
                 .build()
         );
 
-        return  new MessageResponse(savedMessage.getId(), conversation.getId()
+        Long recipientId = conversation.getUserA().getId().equals(currentUserId)
+                ? conversation.getUserB().getId()
+                : conversation.getUserA().getId();
+
+        MessageResponse response = new MessageResponse(savedMessage.getId(), conversation.getId()
                 , sender.getId(), savedMessage.getContent(), savedMessage.getCreatedAt());
+
+        eventPublisher.publishEvent(new MessageSentEvent(recipientId, response));
+
+        return response;
     }
 
     private Conversation getConversationForParticipant(Long currentUserId, Long conversationId) {
