@@ -59,3 +59,8 @@ export interface MessageResponse {
 export interface CreateConversationRequest {
     userId: number; //not null and positive
 }
+
+export interface UserSummaryResponse {
+    id: number;
+    username: string;
+}
