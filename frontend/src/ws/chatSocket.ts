@@ -4,7 +4,12 @@ import type {MessageResponse} from "../api/types.ts";
 
 const WS_URL = import.meta.env.VITE_API_URL.replace(/^http/, "ws") + "/ws";
 
-export function connectChatSocket(onMessage: (message: MessageResponse) => void): () => void {
+export function connectChatSocket(
+    onMessage: (message: MessageResponse) => void,
+    onReconnect?: () => void,
+): () => void {
+    let hasConnectedBefore = false;
+
     const client = new Client({
         brokerURL: WS_URL,
 
@@ -34,6 +39,11 @@ export function connectChatSocket(onMessage: (message: MessageResponse) => void)
                     console.warn("Failed to parse the socket message", e);
                 }
             });
+
+            if (hasConnectedBefore) {
+                onReconnect?.();
+            }
+            hasConnectedBefore = true;
         },
 
         onStompError: (frame) => {

@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useRef, useState, type ReactNode} from "react";
-import {ChatContext, type MessageListener} from "./chatContext.ts";
+import {ChatContext, type MessageListener, type ReconnectListener} from "./chatContext.ts";
 import {apiGetConversations} from "../api/chat.ts";
 import {ApiError} from "../api/client.ts";
 import type {ConversationResponse, MessageResponse} from "../api/types.ts";
@@ -27,6 +27,16 @@ export function ChatProvider({children}: { children: ReactNode }) {
         listenersRef.current.add(listener);
         return () => {
             listenersRef.current.delete(listener);
+        };
+    }, []);
+
+    // слушатели переподключения сокета (окна переписки подгружают пропущенное)
+    const reconnectListenersRef = useRef<Set<ReconnectListener>>(new Set());
+
+    const subscribeReconnect = useCallback((listener: ReconnectListener) => {
+        reconnectListenersRef.current.add(listener);
+        return () => {
+            reconnectListenersRef.current.delete(listener);
         };
     }, []);
 
@@ -64,14 +74,25 @@ export function ChatProvider({children}: { children: ReactNode }) {
         listenersRef.current.forEach((listener) => listener(m));
     }, [applyMessage]);
 
+    // после переподключения сокета: обновляем список бесед и будим открытое окно переписки
+    const handleReconnect = useCallback(() => {
+        void reload();
+        reconnectListenersRef.current.forEach((listener) => listener());
+    }, [reload]);
+
     useEffect(() => {
         void reload();
     }, [reload]);
 
-    useEffect(() => connectChatSocket(handleSocketMessage), [handleSocketMessage]);
+    useEffect(
+        () => connectChatSocket(handleSocketMessage, handleReconnect),
+        [handleSocketMessage, handleReconnect],
+    );
 
     return (
-        <ChatContext.Provider value={{conversations, isLoading, error, reload, applyMessage, subscribe}}>
+        <ChatContext.Provider
+            value={{conversations, isLoading, error, reload, applyMessage, subscribe, subscribeReconnect}}
+        >
             {children}
         </ChatContext.Provider>
     );

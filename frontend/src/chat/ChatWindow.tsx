@@ -28,7 +28,7 @@ interface Props {
 }
 
 export function ChatWindow({conversationId, partnerId, partnerUsername}: Props) {
-    const {subscribe, applyMessage} = useChat();
+    const {subscribe, subscribeReconnect, applyMessage} = useChat();
 
     const [messages, setMessages] = useState<MessageResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -95,6 +95,18 @@ export function ChatWindow({conversationId, partnerId, partnerUsername}: Props) 
             setIsLoadingMore(false);
         }
     }
+
+    useEffect(
+        () =>
+            subscribeReconnect(() => {
+                apiGetMessages(conversationId, 0, PAGE_SIZE)
+                    .then((page) => setMessages((prev) => mergeMessages(prev, page)))
+                    .catch(() => {
+                        // тихо: следующая попытка будет при следующем реконнекте
+                    });
+            }),
+        [subscribeReconnect, conversationId],
+    );
 
     async function send() {
         const content = text.trim();
