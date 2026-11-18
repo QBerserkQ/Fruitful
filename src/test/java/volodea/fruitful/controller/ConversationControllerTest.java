@@ -30,6 +30,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -256,21 +257,22 @@ class ConversationControllerTest {
     }
 
     @Test
-    void getConversations_hidesChatsWithoutMessages_andShowsOnlyOwnChats() throws Exception {
+    void getConversations_showsEmptyChats_andOnlyOwnChats() throws Exception {
         Conversation ab = conversationRepository.saveAndFlush(conversation(alice, bob));
         conversationRepository.saveAndFlush(conversation(bob, carol)); // пустой чат
         seedMessage(ab, alice, "привет", OffsetDateTime.now(ZoneOffset.UTC));
 
-        // у bob два чата, но пустой скрыт; собеседник для него alice
+        // у bob два чата: с alice (есть сообщение) и с carol (пустой). Пустой больше не скрывается
         mockMvc.perform(get("/api/conversations").with(asUser(bob)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].partnerUsername").value("alice"));
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[*].partnerUsername", containsInAnyOrder("alice", "carol")));
 
-        // у carol нет ни одного чата с сообщениями
+        // у carol один чат: пустой, с bob
         mockMvc.perform(get("/api/conversations").with(asUser(carol)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].partnerUsername").value("bob"));
     }
 
     // =============================== helpers ===============================
