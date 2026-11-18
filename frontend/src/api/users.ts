@@ -1,4 +1,4 @@
-import type {RecommendedUser, User} from "./types.ts";
+import type {RecommendedUser, User, UserSummaryResponse} from "./types.ts";
 import { authRequest } from "./client";
 
 export async function getRecommendedUsers(): Promise<RecommendedUser[]> {
@@ -44,4 +44,10 @@ export function getSessions() {
 
 export function deleteSession(id: number) {
     return authRequest<void>(`/api/users/me/sessions${id}`, { method: "DELETE" })
+}
+
+export function searchUsers(query: string) {
+    return authRequest<UserSummaryResponse[]>(
+        `/api/users/search?q=${encodeURIComponent(query)}`
+    );
 }

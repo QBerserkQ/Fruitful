@@ -1,4 +1,4 @@
-package volodea.fruitful.dto;
+package volodea.fruitful.dto.auth;
 
 public record JwtAuthDetails(
         Long sessionId

@@ -10,7 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import volodea.fruitful.dto.SessionTokens;
+import volodea.fruitful.dto.auth.SessionTokens;
 import volodea.fruitful.entity.RefreshToken;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.InvalidRefreshTokenException;

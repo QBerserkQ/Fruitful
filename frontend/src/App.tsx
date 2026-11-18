@@ -8,6 +8,8 @@ import ProtectedRoute from "./security/ProtectedRoute.tsx";
 import AppLayout from "./components/AppLayout.tsx";
 import SessionsSettings from "./pages/settings/SessionsSettings.tsx";
 import AccountSettings from "./pages/settings/AccountSettings.tsx";
+import {ChatProvider} from "./chat/ChatProvider.tsx";
+import ChatsPage from "./pages/ChatsPage.tsx";
 
 function App() {
   return (
@@ -19,8 +21,10 @@ function App() {
               <Route path="*" element={<ErrorPage />} />
 
               <Route element={<ProtectedRoute />}>
-                  <Route element={<AppLayout />}>
+                  <Route element={<ChatProvider><AppLayout /></ChatProvider>}>
                       <Route path="/" element={<DashboardPage />} />
+                      <Route path="/chats" element={<ChatsPage />} />
+                      <Route path="/chats/:conversationId" element={<ChatsPage />} />
 
                       <Route path="/settings" element={<Navigate to="/settings/account" replace />} />
                       <Route path="/settings/account" element={<AccountSettings />} />

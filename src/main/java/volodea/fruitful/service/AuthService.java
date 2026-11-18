@@ -5,7 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import volodea.fruitful.config.jwt.JwtService;
-import volodea.fruitful.dto.*;
+import volodea.fruitful.dto.auth.*;
 import volodea.fruitful.entity.Role;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.*;
@@ -72,7 +72,7 @@ public class AuthService {
     @Transactional
     public void changePassword(String email, ChangePasswordRequest passwordRequest) {
         User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new UserNotFoundException(email)
+                () -> new UserWithEmailNotFoundException(email)
         );
 
         Long sessionId = refreshTokenService.getValidSession(user, passwordRequest.refreshToken());

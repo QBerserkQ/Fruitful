@@ -6,7 +6,7 @@ import {Home, Menu, MessageCircle, Newspaper, Settings, X} from "lucide-react";
 const navItems = [
     { to: "/feed", label: "Feed", icon:  Newspaper},
     { to: "/", label: "Home", icon: Home },
-    { to: "/messages", label: "Messages", icon: MessageCircle },
+    { to: "/chats", label: "Messages", icon: MessageCircle },
     { to: "/settings", label: "Settings", icon: Settings },
 ];
 

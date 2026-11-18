@@ -29,3 +29,38 @@ export interface RecommendedUser {
     username: string;
     tagline: string;
 }
+
+export interface ConversationResponse {
+    id: number;
+    partnerId: number;
+    partnerUsername: string;
+    lastMessage: string | null;
+    createdAt: string;
+    lastMessageAt: string | null;
+}
+
+export interface SendMessageRequest {
+    content: string; //max = 2000
+}
+
+export interface MessageSentEvent {
+    recipientId: number;
+    message: MessageResponse;
+}
+
+export interface MessageResponse {
+    id: number;
+    conversationId: number;
+    senderId: number;
+    content: string;
+    createdAt: string;
+}
+
+export interface CreateConversationRequest {
+    userId: number; //not null and positive
+}
+
+export interface UserSummaryResponse {
+    id: number;
+    username: string;
+}

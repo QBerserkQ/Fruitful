@@ -4,12 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import volodea.fruitful.dto.SessionResponse;
+import volodea.fruitful.dto.auth.SessionResponse;
 import volodea.fruitful.exception.SessionVerificationException;
-import volodea.fruitful.exception.UserNotFoundException;
+import volodea.fruitful.exception.UserWithEmailNotFoundException;
 import volodea.fruitful.repository.UserRepository;
 import volodea.fruitful.util.TokenHasher;
-import volodea.fruitful.dto.SessionTokens;
+import volodea.fruitful.dto.auth.SessionTokens;
 import volodea.fruitful.entity.RefreshToken;
 import volodea.fruitful.entity.User;
 import volodea.fruitful.exception.InvalidRefreshTokenException;
@@ -112,7 +112,7 @@ public class RefreshTokenService {
     @Transactional(readOnly = true)
     public List<SessionResponse> getAllSessions(String email, Long currentSessionId) {
         User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new UserNotFoundException(email)
+                () -> new UserWithEmailNotFoundException(email)
         );
 
         OffsetDateTime now = OffsetDateTime.now();
@@ -133,7 +133,7 @@ public class RefreshTokenService {
     @Transactional
     public void deleteSession(String email, Long sessionId) {
         User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new UserNotFoundException(email)
+                () -> new UserWithEmailNotFoundException(email)
         );
 
         refreshTokenRepository.deleteByIdAndUser(sessionId, user);

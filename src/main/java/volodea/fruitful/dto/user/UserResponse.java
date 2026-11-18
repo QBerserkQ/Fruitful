@@ -1,4 +1,4 @@
-package volodea.fruitful.dto;
+package volodea.fruitful.dto.user;
 
 import volodea.fruitful.entity.Role;
 
