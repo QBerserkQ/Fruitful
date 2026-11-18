@@ -157,8 +157,10 @@ public class MessageService {
                                 ? conv.getUserB()
                                 : conv.getUserA()
                 ))
-                .filter(response -> response.lastMessageAt() != null)
-                .sorted(Comparator.comparing(ConversationResponse::lastMessageAt).reversed())
+                .sorted(Comparator.comparing(
+                        (ConversationResponse r) -> r.lastMessageAt() != null ? r.lastMessageAt() : r.createdAt())
+                        .reversed()
+                )
                 .toList();
     }
 }
