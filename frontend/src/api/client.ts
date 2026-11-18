@@ -102,3 +102,36 @@ export async function authRequest<T>(path: string, options: RequestInit ={}): Pr
     //the only one repeat with new token
     return withToken(newToken);
 }
+
+function getTokenExpiry(token: string): number | null {
+    try {
+        const payload = token.split(".")[1];
+        const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+        const {exp} = JSON.parse(json);
+
+        return typeof exp === "number" ? exp * 1000 : null;
+    } catch {
+        return null;
+    }
+}
+
+export async function getFreshAccessToken(): Promise<string> {
+    const LEEWAY_MS = 30_000;
+
+    const access = tokenStorage.getAccess();
+    const expiresAt = access ? getTokenExpiry(access) : null;
+
+    if (access && expiresAt && expiresAt - Date.now() > LEEWAY_MS) {
+        return access; // токен ещё живой, ничего не делаем
+    }
+
+    try {
+        return await refreshAccessToken();
+    } catch (e) {
+        if (e instanceof ApiError) {
+            tokenStorage.clear();
+            onAuthFailure?.();
+        }
+        throw e;
+    }
+}
