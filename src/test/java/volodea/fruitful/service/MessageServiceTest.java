@@ -288,7 +288,7 @@ class MessageServiceTest {
     // ============================ getConversations ============================
 
     @Test
-    void getConversations_picksPartner_hidesEmptyChats_andSortsByLastMessage() {
+    void getConversations_picksPartner_andSortsByLastMessage() {
         User me = user(2L, "me");
         User anna = user(1L, "anna");
         User carol = user(3L, "carol");
@@ -308,9 +308,9 @@ class MessageServiceTest {
 
         List<ConversationResponse> result = messageService.getConversations(2L);
 
-        assertThat(result).extracting(ConversationResponse::id).containsExactly(12L, 11L);
-        assertThat(result).extracting(ConversationResponse::partnerUsername).containsExactly("carol", "anna");
-        assertThat(result).extracting(ConversationResponse::lastMessage).containsExactly("new", "old");
+        assertThat(result).extracting(ConversationResponse::id).containsExactly(13L, 12L, 11L);
+        assertThat(result).extracting(ConversationResponse::partnerUsername).containsExactly("dave", "carol", "anna");
+        assertThat(result).extracting(ConversationResponse::lastMessage).containsExactly(null, "new", "old");
     }
 
     @Test
