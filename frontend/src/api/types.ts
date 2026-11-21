@@ -64,3 +64,22 @@ export interface UserSummaryResponse {
     id: number;
     username: string;
 }
+
+export interface CreatePostRequest {
+    content: string;
+}
+
+export interface PostResponse {
+    id: number
+    , content: string
+    , createdAt: string
+    , author: UserSummaryResponse
+}
+
+export interface PageResponse<T> {
+    content: T[];
+    page: number;
+    size: number;
+    totalElements: number;
+    hasNext: boolean;
+}

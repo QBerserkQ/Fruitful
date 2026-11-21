@@ -49,7 +49,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class ConversationControllerTest {
 
-    // Скопируй объявление контейнера из своих существующих тестов, чтобы версии совпадали
     @Container
     @ServiceConnection
     static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine");
