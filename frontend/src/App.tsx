@@ -10,6 +10,7 @@ import SessionsSettings from "./pages/settings/SessionsSettings.tsx";
 import AccountSettings from "./pages/settings/AccountSettings.tsx";
 import {ChatProvider} from "./chat/ChatProvider.tsx";
 import ChatsPage from "./pages/ChatsPage.tsx";
+import FeedPage from "./pages/FeedPage.tsx";
 
 function App() {
   return (
@@ -25,6 +26,8 @@ function App() {
                       <Route path="/" element={<DashboardPage />} />
                       <Route path="/chats" element={<ChatsPage />} />
                       <Route path="/chats/:conversationId" element={<ChatsPage />} />
+
+                      <Route path="/feed" element={<FeedPage />}/>
 
                       <Route path="/settings" element={<Navigate to="/settings/account" replace />} />
                       <Route path="/settings/account" element={<AccountSettings />} />
